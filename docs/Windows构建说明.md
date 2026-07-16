@@ -1,0 +1,51 @@
+# Windows 构建说明
+
+## 环境
+
+- Windows 10 或 Windows 11 x64。
+- Python 3.11、3.12 或 3.13。
+
+## 安装
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -e ".[build]"
+```
+
+## 测试
+
+```powershell
+$env:PYTHONPATH = "$PWD\src"
+python -X utf8 -m unittest discover -s tests -v
+```
+
+## 构建
+
+```powershell
+.\scripts\build_windows.ps1
+```
+
+输出目录：
+
+```text
+dist\YUCEdu双向转换器
+```
+
+## 正式包
+
+```powershell
+.\scripts\package_release.ps1
+```
+
+输出文件：
+
+```text
+release\yucedu-converter-v2.0.1-windows-x64\
+release\yucedu-converter-v2.0.1-windows-x64.zip
+release\yucedu-converter-v2.0.1-windows-x64.zip.sha256.txt
+```
+
+本地交付目录、ZIP 根目录和 GitHub Release 使用同一个名称，避免重复文件和多层嵌套。
+
+详细结构见 [发布包目录说明](发布包目录说明.md)。

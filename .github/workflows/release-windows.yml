@@ -1,0 +1,46 @@
+name: Windows release build
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install build dependencies
+        run: python -m pip install -e ".[build]"
+
+      - name: Check repository privacy
+        run: python -X utf8 scripts/check_privacy.py --check-git-identity
+
+      - name: Build Windows application
+        shell: pwsh
+        run: .\scripts\build_windows.ps1
+
+      - name: Package release
+        shell: pwsh
+        run: .\scripts\package_release.ps1
+
+      - name: Upload release files
+        uses: actions/upload-artifact@v4
+        with:
+          name: yucedu-converter-${{ github.ref_name }}-windows
+          path: |
+            release/*.zip
+            release/*.sha256.txt
+          if-no-files-found: error

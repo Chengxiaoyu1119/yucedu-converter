@@ -1,0 +1,32 @@
+name: 功能建议
+description: 提交清晰、可验证的新功能想法
+title: "[Feature] "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 想解决的问题
+      description: 说明当前操作中最麻烦的环节。
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: 建议方案
+      description: 描述理想的操作步骤和完成标准。
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: 平台
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - Android
+        - iOS / iPadOS
+        - 跨平台核心
+    validations:
+      required: true

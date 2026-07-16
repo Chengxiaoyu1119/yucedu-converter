@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "yucedu-converter"
+version = "2.0.1"
+description = "YUCEdu bidirectional video converter with batch encrypt, decrypt, validation, and Windows GUI"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [
+  { name = "yucedu-converter contributors" }
+]
+keywords = ["yucedu", "video", "converter", "cryptography", "tkinter"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: Microsoft :: Windows :: Windows 10",
+  "Operating System :: Microsoft :: Windows :: Windows 11",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+  "cryptography==44.0.1",
+]
+
+[project.optional-dependencies]
+build = [
+  "pyinstaller==6.21.0",
+]
+
+[project.scripts]
+yucedu-converter = "yucedu_converter.main:main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+yucedu_converter = ["resources/*"]

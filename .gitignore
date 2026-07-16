@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+
+# Build and release
+build/
+dist/
+release/
+*.egg-info/
+*.zip
+*.sha256.txt
+
+# Local application data
+*.log
+设置.json
+
+# Original players and local references
+*.exe
+*.app/
+*.dmg
+*.pkg
+
+# Real media and conversion output
+*.yucedu
+*.mp4
+*.mkv
+*.avi
+*.mov
+*.m4v
+*.wmv
+*.flv
+*.webm
+*.ts
+*.mpeg
+*.mpg
+*.转换中.tmp
+
+# Editors and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+desktop.ini

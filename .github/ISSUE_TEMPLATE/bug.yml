@@ -1,0 +1,50 @@
+name: 缺陷报告
+description: 报告可重复出现的程序问题
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: 感谢反馈。请先删除账号、密码和个人路径。
+  - type: input
+    id: version
+    attributes:
+      label: 软件版本
+      placeholder: 2.0.1
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: 转换模式
+      options:
+        - 解密 YUCEdu → 视频
+        - 加密视频 → YUCEdu
+        - 启动或界面
+        - 播放器调用
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 操作步骤
+      description: 按顺序说明点击了什么，以及问题出现在哪一步。
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 预期结果
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际结果
+    validations:
+      required: true
+  - type: input
+    id: hash
+    attributes:
+      label: 示例文件 SHA256
+      description: 只填写哈希，不上传真实课程视频。
