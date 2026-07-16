@@ -55,9 +55,9 @@ Copy-Item -LiteralPath (Join-Path $DistRoot 'YUCEdu双向转换器.exe') -Destin
 Copy-Item -LiteralPath $distRuntime -Destination $StageRoot -Recurse
 Copy-Item -LiteralPath (Join-Path $ProjectRoot 'docs\使用说明.md') -Destination (Join-Path $StageRoot '使用说明.md')
 Copy-Item -LiteralPath (Join-Path $ProjectRoot 'docs\发布说明.md') -Destination (Join-Path $DocumentRoot '目录结构.md')
-Copy-Item -LiteralPath (Join-Path $ProjectRoot 'CHANGELOG.md') -Destination (Join-Path $DocumentRoot '版本说明.md')
+Copy-Item -LiteralPath (Join-Path $ProjectRoot 'docs\更新日志.md') -Destination (Join-Path $DocumentRoot '版本说明.md')
 Copy-Item -LiteralPath (Join-Path $ProjectRoot 'LICENSE') -Destination (Join-Path $DocumentRoot 'MIT许可证.txt')
-Copy-Item -LiteralPath (Join-Path $ProjectRoot 'THIRD_PARTY_NOTICES.md') -Destination (Join-Path $DocumentRoot '第三方组件说明.md')
+Copy-Item -LiteralPath (Join-Path $ProjectRoot 'docs\第三方组件.md') -Destination (Join-Path $DocumentRoot '第三方组件说明.md')
 Get-ChildItem -LiteralPath (Join-Path $ProjectRoot 'docs\images') -File | ForEach-Object {
     Copy-Item -LiteralPath $_.FullName -Destination $PreviewRoot
 }

@@ -1,7 +1,7 @@
 # yucedu-converter
 
 [![Windows CI](https://img.shields.io/badge/Windows-CI-2671E5)](.github/workflows/test-windows.yml)
-[![Version](https://img.shields.io/badge/version-2.0.1-2671E5)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2.0.1-2671E5)](docs/更新日志.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 YUCEdu 双向转换器：提供 Windows 图形界面、批量任务、文件校验，以及当前已验证配置下的 `.yucedu` 解密与反向加密。
@@ -111,7 +111,11 @@ dist\YUCEdu双向转换器\
 ## 项目文档
 
 - [使用说明](docs/使用说明.md)
-- [项目结构](docs/项目结构.md)
+- [项目结构、技术栈与路径规范](docs/项目结构.md)
+- [更新日志](docs/更新日志.md)
+- [第三方组件](docs/第三方组件.md)
+- [参与贡献](.github/CONTRIBUTING.md)
+- [安全说明](.github/SECURITY.md)
 - [转换格式说明](docs/格式说明.md)
 - [Windows 构建说明](docs/构建说明.md)
 - [发布包目录说明](docs/发布说明.md)
@@ -130,4 +134,4 @@ dist\YUCEdu双向转换器\
 
 ## 许可证
 
-项目源码使用 [MIT License](LICENSE)。第三方组件信息见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+项目源码使用 [MIT License](LICENSE)。第三方组件信息见 [第三方组件说明](docs/第三方组件.md)。
