@@ -19,6 +19,7 @@ release/
 *.sha256.txt
 
 # Local application data
+local/
 *.log
 设置.json
 
