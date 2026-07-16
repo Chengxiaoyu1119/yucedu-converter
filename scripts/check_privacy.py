@@ -20,10 +20,6 @@ WINDOWS_PATH = re.compile(r"(?<![A-Za-z])([A-Za-z]:[\\/](?![\\/])[^\r\n`\"']*)")
 RULES = (
     ("Windows 用户目录", re.compile(r"(?i)\b[A-Z]:[\\/]+Users[\\/]")),
     ("Unix 用户目录", re.compile(r"(?i)(?<![\w])/(?:Users|home)/[^/\s]+")),
-    (
-        "仓库所有者绝对链接",
-        re.compile(r"(?i)github\.com[/:][^/\s]+/yucedu-converter"),
-    ),
     ("账号标识", re.compile(r"YUCEDU-[0-9A-Za-z_-]{6,}")),
 )
 EMAIL_PATTERN = re.compile(
