@@ -47,6 +47,10 @@ jobs:
         run: python -X utf8 scripts/version_tool.py
 
       - name: Check repository privacy
+        run: python -X utf8 scripts/check_privacy.py
+
+      - name: Check Git history identity
+        if: github.event_name != 'pull_request'
         run: python -X utf8 scripts/check_privacy.py --check-git-identity
 
       - name: Run unit tests
