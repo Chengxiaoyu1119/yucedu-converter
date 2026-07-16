@@ -83,7 +83,7 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 )
 
 $zipHash = (Get-FileHash -LiteralPath $ZipPath -Algorithm SHA256).Hash.ToLowerInvariant()
-Set-Content -LiteralPath $ZipHashPath -Value "$zipHash  $AssetBase.zip" -Encoding UTF8
+[System.IO.File]::WriteAllText($ZipHashPath, "$zipHash  $AssetBase.zip`n", [System.Text.UTF8Encoding]::new($false))
 
 Write-Host "发布目录：$StageRoot"
 Write-Host "发布 ZIP：$ZipPath"
