@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 import tkinter as tk
 from tkinter import ttk
 
@@ -28,12 +29,19 @@ COLORS = {
     "row_alt": "#F9FBFD",
 }
 
-FONT_UI = ("Microsoft YaHei UI", 10)
-FONT_SMALL = ("Microsoft YaHei UI", 9)
-FONT_SECTION = ("Microsoft YaHei UI", 11, "bold")
-FONT_TITLE = ("Microsoft YaHei UI", 20, "bold")
-FONT_SUBTITLE = ("Microsoft YaHei UI", 10)
-FONT_BUTTON = ("Microsoft YaHei UI", 10, "bold")
+if sys.platform == "darwin":
+    FONT_FAMILY = "PingFang SC"
+elif sys.platform == "win32":
+    FONT_FAMILY = "Microsoft YaHei UI"
+else:
+    FONT_FAMILY = "Noto Sans CJK SC"
+
+FONT_UI = (FONT_FAMILY, 10)
+FONT_SMALL = (FONT_FAMILY, 9)
+FONT_SECTION = (FONT_FAMILY, 11, "bold")
+FONT_TITLE = (FONT_FAMILY, 20, "bold")
+FONT_SUBTITLE = (FONT_FAMILY, 10)
+FONT_BUTTON = (FONT_FAMILY, 10, "bold")
 
 
 def apply_theme(root: tk.Misc) -> ttk.Style:
@@ -137,7 +145,7 @@ def apply_theme(root: tk.Misc) -> ttk.Style:
         bordercolor=COLORS["border"],
         relief="flat",
         padding=(10, 9),
-        font=("Microsoft YaHei UI", 9, "bold"),
+        font=(FONT_FAMILY, 9, "bold"),
     )
     style.map("Treeview.Heading", background=[("active", "#EEF3F8")])
 

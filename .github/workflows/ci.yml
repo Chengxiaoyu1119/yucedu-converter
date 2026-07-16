@@ -1,0 +1,56 @@
+name: Cross-platform CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows / Python 3.11
+            runner: windows-latest
+            python: "3.11"
+          - name: Windows / Python 3.13
+            runner: windows-latest
+            python: "3.13"
+          - name: macOS arm64 / Python 3.13
+            runner: macos-15
+            python: "3.13"
+    runs-on: ${{ matrix.runner }}
+    env:
+      PYTHONPATH: ${{ github.workspace }}/src
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+
+      - name: Install project
+        run: python -m pip install -e .
+
+      - name: Check version metadata
+        run: python -X utf8 scripts/version_tool.py
+
+      - name: Check repository privacy
+        run: python -X utf8 scripts/check_privacy.py --check-git-identity
+
+      - name: Run unit tests
+        run: python -X utf8 -m unittest discover -s tests -v
+
+      - name: Smoke-test source GUI
+        run: python -X utf8 -m yucedu_converter --smoke-test

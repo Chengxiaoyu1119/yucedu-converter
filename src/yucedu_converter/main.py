@@ -1,9 +1,12 @@
-"""YUCEdu 离线转换器正式版入口。"""
+"""YUCEdu 双向转换器入口。"""
 
 from __future__ import annotations
 
 import ctypes
 import sys
+from collections.abc import Sequence
+
+from . import APP_VERSION
 
 
 def enable_windows_dpi_awareness() -> None:
@@ -11,7 +14,7 @@ def enable_windows_dpi_awareness() -> None:
         return
     try:
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(
-            "YUCEdu.BidirectionalConverter.2.0.1"
+            f"YUCEdu.BidirectionalConverter.{APP_VERSION}"
         )
     except Exception:
         pass
@@ -24,11 +27,16 @@ def enable_windows_dpi_awareness() -> None:
             pass
 
 
-def main() -> int:
+def main(argv: Sequence[str] | None = None) -> int:
+    arguments = list(sys.argv[1:] if argv is None else argv)
+    if "--version" in arguments:
+        print(APP_VERSION)
+        return 0
+
     enable_windows_dpi_awareness()
     from .gui import run_app
 
-    run_app()
+    run_app(smoke_test="--smoke-test" in arguments)
     return 0
 
 

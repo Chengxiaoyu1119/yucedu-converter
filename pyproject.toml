@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "yucedu-converter"
-version = "2.0.1"
-description = "YUCEdu bidirectional video converter with batch encrypt, decrypt, validation, and Windows GUI"
+dynamic = ["version"]
+description = "YUCEdu bidirectional video converter with batch encrypt, decrypt, validation, and desktop GUI"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { file = "LICENSE" }
@@ -18,6 +18,7 @@ classifiers = [
   "License :: OSI Approved :: MIT License",
   "Operating System :: Microsoft :: Windows :: Windows 10",
   "Operating System :: Microsoft :: Windows :: Windows 11",
+  "Operating System :: MacOS :: MacOS X",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
@@ -30,6 +31,10 @@ dependencies = [
 [project.optional-dependencies]
 build = [
   "pyinstaller==6.21.0",
+]
+macos = [
+  "pyinstaller==6.21.0",
+  "pillow>=11,<13",
 ]
 
 [project.scripts]
@@ -44,3 +49,6 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 yucedu_converter = ["resources/*"]
+
+[tool.setuptools.dynamic]
+version = { attr = "yucedu_converter.APP_VERSION" }

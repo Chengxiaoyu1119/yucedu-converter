@@ -24,7 +24,12 @@ class AppSettings:
 
 def portable_root() -> Path:
     if getattr(sys, "frozen", False):
-        return Path(sys.executable).resolve().parent
+        executable = Path(sys.executable).resolve()
+        if sys.platform == "darwin":
+            for parent in executable.parents:
+                if parent.suffix.lower() == ".app":
+                    return parent.parent
+        return executable.parent
     return Path(__file__).resolve().parents[1]
 
 
@@ -36,8 +41,14 @@ def resource_path(filename: str) -> Path:
 
 
 def app_data_dir() -> Path:
-    local = os.environ.get("LOCALAPPDATA")
-    base = Path(local) if local else Path.home() / "AppData" / "Local"
+    if sys.platform == "win32":
+        local = os.environ.get("LOCALAPPDATA")
+        base = Path(local) if local else Path.home() / "AppData" / "Local"
+    elif sys.platform == "darwin":
+        base = Path.home() / "Library" / "Application Support"
+    else:
+        config_home = os.environ.get("XDG_CONFIG_HOME")
+        base = Path(config_home) if config_home else Path.home() / ".config"
     return base / "YUCEdu双向转换器"
 
 
@@ -52,9 +63,13 @@ def log_path() -> Path:
 
 
 def default_settings() -> AppSettings:
+    if sys.platform == "darwin":
+        base = Path.home() / "Movies" / "YUCEdu双向转换器"
+    else:
+        base = portable_root()
     return AppSettings(
-        output_dir=str(portable_root() / "输出视频"),
-        encrypt_output_dir=str(portable_root() / "加密视频"),
+        output_dir=str(base / "输出视频"),
+        encrypt_output_dir=str(base / "加密视频"),
     )
 
 
@@ -68,7 +83,7 @@ def load_settings(path: Path | None = None) -> AppSettings:
     if not isinstance(raw, dict):
         return defaults
     player_mode = str(raw.get("player_mode") or "auto")
-    if player_mode not in {"auto", "potplayer", "vlc", "windows", "custom"}:
+    if player_mode not in {"auto", "potplayer", "iina", "vlc", "windows", "system", "custom"}:
         player_mode = "auto"
     existing_policy = str(raw.get("existing_policy") or "rename")
     if existing_policy not in {"rename", "error", "replace"}:

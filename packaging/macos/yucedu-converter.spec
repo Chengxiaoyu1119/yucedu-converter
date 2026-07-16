@@ -1,6 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 import os
+import sys
 from pathlib import Path
 
 
@@ -8,14 +9,15 @@ PROJECT_ROOT = Path(SPECPATH).resolve().parents[1]
 SOURCE_ROOT = PROJECT_ROOT / "src"
 PACKAGE_ROOT = SOURCE_ROOT / "yucedu_converter"
 RESOURCE_ROOT = PACKAGE_ROOT / "resources"
-VERSION_INFO = Path(os.environ["YUCEDU_WINDOWS_VERSION_INFO"]).resolve()
+sys.path.insert(0, str(SOURCE_ROOT))
 
-if not VERSION_INFO.is_file():
-    raise FileNotFoundError(f"缺少生成的 Windows 版本信息：{VERSION_INFO}")
+from yucedu_converter import APP_VERSION
+
+TARGET_ARCH = os.environ.get("YUCEDU_TARGET_ARCH") or None
 
 
 a = Analysis(
-    [str(PROJECT_ROOT / "packaging" / "windows" / "launcher.py")],
+    [str(PROJECT_ROOT / "packaging" / "macos" / "launcher.py")],
     pathex=[str(SOURCE_ROOT)],
     binaries=[],
     datas=[
@@ -27,7 +29,7 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=["PIL", "numpy", "pytest"],
+    excludes=["numpy", "pytest"],
     noarchive=False,
     optimize=1,
 )
@@ -39,7 +41,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name="YUCEdu双向转换器",
+    name="YUCEduConverter",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -47,12 +49,9 @@ exe = EXE(
     console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
-    target_arch=None,
+    target_arch=TARGET_ARCH,
     codesign_identity=None,
     entitlements_file=None,
-    contents_directory="运行组件",
-    icon=str(RESOURCE_ROOT / "app.ico"),
-    version=str(VERSION_INFO),
 )
 
 coll = COLLECT(
@@ -62,5 +61,22 @@ coll = COLLECT(
     strip=False,
     upx=False,
     upx_exclude=[],
-    name="YUCEdu双向转换器",
+    name="YUCEduConverter",
+)
+
+app = BUNDLE(
+    coll,
+    name="YUCEdu双向转换器.app",
+    icon=str(RESOURCE_ROOT / "app.ico"),
+    bundle_identifier="io.github.chengxiaoyu1119.yucedu-converter",
+    version=APP_VERSION,
+    info_plist={
+        "CFBundleDisplayName": "YUCEdu 双向转换器",
+        "CFBundleName": "YUCEdu 双向转换器",
+        "CFBundleShortVersionString": APP_VERSION,
+        "CFBundleVersion": APP_VERSION,
+        "LSApplicationCategoryType": "public.app-category.utilities",
+        "LSMinimumSystemVersion": "12.0",
+        "NSHighResolutionCapable": True,
+    },
 )

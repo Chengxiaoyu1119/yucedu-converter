@@ -1,3 +1,4 @@
+.gitattributes text eol=lf
 * text=auto
 *.py text eol=lf
 *.md text eol=lf
@@ -9,3 +10,7 @@
 *.bin binary
 *.ico binary
 *.png binary
+*.sh text eol=lf
+*.spec text eol=lf
+*.plist text eol=lf
+*.txt text eol=lf

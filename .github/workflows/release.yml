@@ -1,0 +1,131 @@
+name: Multi-platform release
+
+on:
+  push:
+    tags:
+      - "v*"
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    name: Windows x64
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install build dependencies
+        run: python -m pip install -e ".[build]"
+
+      - name: Build and verify Windows application
+        shell: pwsh
+        run: .\scripts\build_windows.ps1
+
+      - name: Package Windows release
+        shell: pwsh
+        run: .\scripts\package_release.ps1
+
+      - name: Upload Windows assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-x64
+          path: |
+            release/*-windows-x64.zip
+            release/*-windows-x64.zip.sha256.txt
+          if-no-files-found: error
+
+  macos:
+    name: macOS ${{ matrix.asset_arch }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15
+            asset_arch: arm64
+          - runner: macos-15-intel
+            asset_arch: x64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install macOS build dependencies
+        run: python -m pip install -e ".[macos]"
+
+      - name: Build and verify macOS application
+        run: bash scripts/build_macos.sh
+
+      - name: Package macOS DMG
+        run: bash scripts/package_macos.sh "${{ matrix.asset_arch }}"
+
+      - name: Upload macOS assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-${{ matrix.asset_arch }}
+          path: |
+            release/*-macos-${{ matrix.asset_arch }}.dmg
+            release/*-macos-${{ matrix.asset_arch }}.dmg.sha256.txt
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [windows, macos]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all release assets
+        uses: actions/download-artifact@v4
+        with:
+          path: release
+          merge-multiple: true
+
+      - name: Validate tag, assets, and checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PYTHONPATH="$GITHUB_WORKSPACE/src"
+          python -X utf8 scripts/version_tool.py --check-tag "$GITHUB_REF_NAME"
+          test "$(find release -maxdepth 1 -type f | wc -l | tr -d ' ')" -eq 6
+          (
+            cd release
+            for checksum in *.sha256.txt; do
+              shasum -a 256 -c "$checksum"
+            done
+          )
+          find release -maxdepth 1 -type f -print | sort
+
+      - name: Create or update GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" release/* --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" release/* \
+              --title "YUCEdu 双向转换器 ${GITHUB_REF_NAME#v}" \
+              --notes-file docs/发布说明.md
+          fi

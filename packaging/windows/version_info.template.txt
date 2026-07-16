@@ -1,8 +1,8 @@
 # UTF-8
 VSVersionInfo(
   ffi=FixedFileInfo(
-    filevers=(2, 0, 1, 0),
-    prodvers=(2, 0, 1, 0),
+    filevers=(@VERSION_TUPLE@),
+    prodvers=(@VERSION_TUPLE@),
     mask=0x3F,
     flags=0x0,
     OS=0x40004,
@@ -17,12 +17,12 @@ VSVersionInfo(
         [
           StringStruct('CompanyName', 'YUCEdu'),
           StringStruct('FileDescription', 'YUCEdu 双向转换器'),
-          StringStruct('FileVersion', '2.0.1'),
+          StringStruct('FileVersion', '@VERSION@'),
           StringStruct('InternalName', 'YUCEduConverter'),
           StringStruct('LegalCopyright', 'Copyright 2026 yucedu-converter contributors'),
           StringStruct('OriginalFilename', 'YUCEdu双向转换器.exe'),
           StringStruct('ProductName', 'YUCEdu 双向转换器'),
-          StringStruct('ProductVersion', '2.0.1')
+          StringStruct('ProductVersion', '@VERSION@')
         ]
       )
     ]),

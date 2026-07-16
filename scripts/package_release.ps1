@@ -3,7 +3,12 @@
 $ProjectRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $DistRoot = [System.IO.Path]::GetFullPath((Join-Path $ProjectRoot 'dist\YUCEdu双向转换器'))
 $ReleaseRoot = [System.IO.Path]::GetFullPath((Join-Path $ProjectRoot 'release'))
-$AssetBase = 'yucedu-converter-v2.0.1-windows-x64'
+$env:PYTHONPATH = Join-Path $ProjectRoot 'src'
+$Version = (& python -X utf8 (Join-Path $ProjectRoot 'scripts\version_tool.py')).Trim()
+if ($LASTEXITCODE -ne 0) {
+    throw '读取项目版本失败。'
+}
+$AssetBase = "yucedu-converter-v$Version-windows-x64"
 $StageRoot = [System.IO.Path]::GetFullPath((Join-Path $ReleaseRoot $AssetBase))
 $ZipPath = [System.IO.Path]::GetFullPath((Join-Path $ReleaseRoot "$AssetBase.zip"))
 $ZipHashPath = "$ZipPath.sha256.txt"
@@ -15,27 +20,11 @@ if (-not (Test-Path -LiteralPath $DistRoot -PathType Container)) {
     throw "请先运行 scripts\build_windows.ps1：$DistRoot"
 }
 
+New-Item -ItemType Directory -Path $ReleaseRoot -Force | Out-Null
 $releasePrefix = $ReleaseRoot.TrimEnd([System.IO.Path]::DirectorySeparatorChar) + [System.IO.Path]::DirectorySeparatorChar
 foreach ($path in @($StageRoot, $ZipPath, $ZipHashPath)) {
     if (-not $path.StartsWith($releasePrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
         throw "发布路径越界：$path"
-    }
-}
-
-New-Item -ItemType Directory -Path $ReleaseRoot -Force | Out-Null
-
-$legacyPaths = @(
-    (Join-Path $ReleaseRoot 'YUCEdu双向转换器_正式版_2.0.1'),
-    (Join-Path $ReleaseRoot 'YUCEdu双向转换器_正式版_2.0.1.zip'),
-    (Join-Path $ReleaseRoot 'YUCEdu双向转换器_正式版_2.0.1.zip.sha256.txt')
-)
-foreach ($legacyPath in $legacyPaths) {
-    $resolvedLegacyPath = [System.IO.Path]::GetFullPath($legacyPath)
-    if (-not $resolvedLegacyPath.StartsWith($releasePrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
-        throw "旧发布路径越界：$resolvedLegacyPath"
-    }
-    if (Test-Path -LiteralPath $resolvedLegacyPath) {
-        Remove-Item -LiteralPath $resolvedLegacyPath -Recurse -Force
     }
 }
 
@@ -68,7 +57,7 @@ $coreFiles = @(
     "$RuntimeName\yucedu_converter\resources\compatibility_trailer.bin",
     "$RuntimeName\yucedu_converter\resources\app.ico"
 )
-$lines = @('YUCEdu 双向转换器 2.0.1 核心文件 SHA256', '')
+$lines = @("YUCEdu 双向转换器 $Version 核心文件 SHA256", '')
 foreach ($relative in $coreFiles) {
     $path = Join-Path $StageRoot $relative
     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {

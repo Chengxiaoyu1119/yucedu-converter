@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import os
 import queue
+import sys
 import threading
 import time
 import tkinter as tk
@@ -192,10 +193,11 @@ class MainWindow(tk.Tk):
         self._center_window(1080, 780)
         self._app_icon = self._create_app_icon()
         self.iconphoto(True, self._app_icon)
-        try:
-            self.iconbitmap(default=str(resource_path("app.ico")))
-        except tk.TclError:
-            pass
+        if sys.platform == "win32":
+            try:
+                self.iconbitmap(default=str(resource_path("app.ico")))
+            except tk.TclError:
+                pass
         apply_theme(self)
 
         self.settings: AppSettings = load_settings()
@@ -479,6 +481,9 @@ class MainWindow(tk.Tk):
 
         self.tree.bind("<Double-1>", self._on_tree_double_click)
         self.tree.bind("<Button-3>", self._show_context_menu)
+        if sys.platform == "darwin":
+            self.tree.bind("<Button-2>", self._show_context_menu)
+            self.tree.bind("<Control-Button-1>", self._show_context_menu)
         self.context_menu = tk.Menu(self, tearoff=False)
         self.context_menu.add_command(label="播放输出", command=self._play_selected)
         self.context_menu.add_command(label="打开输出位置", command=self._reveal_selected)
@@ -553,11 +558,12 @@ class MainWindow(tk.Tk):
         self.start_button.grid(row=0, column=3)
 
     def _bind_shortcuts(self) -> None:
-        self.bind("<Control-o>", lambda _event: self._choose_files())
-        self.bind("<Control-O>", lambda _event: self._choose_files())
-        self.bind("<Control-Shift-O>", lambda _event: self._choose_folder())
+        modifier = "Command" if sys.platform == "darwin" else "Control"
+        self.bind(f"<{modifier}-o>", lambda _event: self._choose_files())
+        self.bind(f"<{modifier}-Shift-O>", lambda _event: self._choose_folder())
         self.bind("<Delete>", lambda _event: self._remove_selected())
-        self.bind("<Control-Return>", lambda _event: self._start_conversion())
+        self.bind("<BackSpace>", lambda _event: self._remove_selected())
+        self.bind(f"<{modifier}-Return>", lambda _event: self._start_conversion())
 
     def _refresh_mode_buttons(self) -> None:
         active = {
@@ -1277,13 +1283,22 @@ class MainWindow(tk.Tk):
         ttk.Label(card, text="应用设置", style="Section.TLabel").grid(row=0, column=0, columnspan=3, sticky="w")
         ttk.Label(card, text="输出文件夹在主界面按每次任务选择，这里设置播放器和处理方式。", style="Muted.TLabel").grid(row=1, column=0, columnspan=3, sticky="w", pady=(4, 18))
 
-        player_labels = {
-            "自动检测（推荐）": "auto",
-            "PotPlayer": "potplayer",
-            "VLC": "vlc",
-            "Windows 默认播放器": "windows",
-            "自定义播放器": "custom",
-        }
+        if sys.platform == "darwin":
+            player_labels = {
+                "自动检测（推荐）": "auto",
+                "IINA": "iina",
+                "VLC": "vlc",
+                "macOS 默认播放器": "system",
+                "自定义播放器": "custom",
+            }
+        else:
+            player_labels = {
+                "自动检测（推荐）": "auto",
+                "PotPlayer": "potplayer",
+                "VLC": "vlc",
+                "Windows 默认播放器": "windows",
+                "自定义播放器": "custom",
+            }
         current_player_label = next((label for label, value in player_labels.items() if value == self.settings.player_mode), "自动检测（推荐）")
         player_var = tk.StringVar(value=current_player_label)
         player_path_var = tk.StringVar(value=self.settings.player_path)
@@ -1309,11 +1324,18 @@ class MainWindow(tk.Tk):
         ttk.Entry(card, textvariable=player_path_var).grid(row=3, column=1, sticky="ew", pady=6)
 
         def browse_player() -> None:
-            chosen = filedialog.askopenfilename(
-                title="选择播放器程序",
-                filetypes=[("EXE 程序", "*.exe"), ("所有文件", "*.*")],
-                parent=dialog,
-            )
+            if sys.platform == "darwin":
+                chosen = filedialog.askopenfilename(
+                    title="选择 macOS 播放器应用",
+                    filetypes=[("macOS 应用", "*.app"), ("所有文件", "*.*")],
+                    parent=dialog,
+                )
+            else:
+                chosen = filedialog.askopenfilename(
+                    title="选择播放器程序",
+                    filetypes=[("EXE 程序", "*.exe"), ("所有文件", "*.*")],
+                    parent=dialog,
+                )
             if chosen:
                 player_path_var.set(chosen)
                 player_var.set("自定义播放器")
@@ -1324,11 +1346,18 @@ class MainWindow(tk.Tk):
         ttk.Entry(card, textvariable=original_player_var).grid(row=4, column=1, sticky="ew", pady=6)
 
         def browse_original_player() -> None:
-            chosen = filedialog.askopenfilename(
-                title="选择 WinNetPlayer1018.exe",
-                filetypes=[("WinNetPlayer1018", "WinNetPlayer1018.exe"), ("EXE 程序", "*.exe")],
-                parent=dialog,
-            )
+            if sys.platform == "darwin":
+                chosen = filedialog.askopenfilename(
+                    title="选择 MacNetPlayer.app",
+                    filetypes=[("MacNetPlayer", "*.app"), ("所有文件", "*.*")],
+                    parent=dialog,
+                )
+            else:
+                chosen = filedialog.askopenfilename(
+                    title="选择 WinNetPlayer1018.exe",
+                    filetypes=[("WinNetPlayer1018", "WinNetPlayer1018.exe"), ("EXE 程序", "*.exe")],
+                    parent=dialog,
+                )
             if chosen:
                 original_player_var.set(chosen)
 
@@ -1403,20 +1432,22 @@ class MainWindow(tk.Tk):
         ttk.Button(button_row, text="保存设置", style="Primary.TButton", command=save_dialog).pack(side=tk.RIGHT)
 
     def _show_help(self) -> None:
+        modifier = "Command" if sys.platform == "darwin" else "Ctrl"
+        original_player = "MacNetPlayer" if sys.platform == "darwin" else "WinNetPlayer1018"
         messagebox.showinfo(
             "使用说明",
             "1. 先选择“解密 YUCEdu”或“加密视频”。\n"
             "2. 点击“选择文件夹”，决定本次任务的输出位置。\n"
             "3. 点击“添加文件”或“添加文件夹”，然后开始处理。\n"
             "4. 解密结果双击后用普通播放器打开。\n"
-            "5. 加密结果双击后用 WinNetPlayer1018 打开。\n\n"
+            f"5. 加密结果双击后用 {original_player} 打开。\n\n"
             "快捷键：\n"
-            "Ctrl+O 添加文件\n"
-            "Ctrl+Shift+O 添加文件夹\n"
-            "Delete 移除所选\n"
-            "Ctrl+Enter 开始转换\n\n"
+            f"{modifier}+O 添加文件\n"
+            f"{modifier}+Shift+O 添加文件夹\n"
+            "Delete/Backspace 移除所选\n"
+            f"{modifier}+Enter 开始转换\n\n"
             "支持加密：MP4、MKV、AVI、MOV、M4V、WMV、FLV、WebM、TS、MPEG/MPG。\n\n"
-            "当前转换配置只对应已经验证的样本/授权分支。",
+            "当前转换配置只对应已经验证的样本/配置档案。",
             parent=self,
         )
 
@@ -1434,6 +1465,8 @@ class MainWindow(tk.Tk):
             self.cancel_button.configure(text="正在退出…", state=tk.DISABLED)
 
 
-def run_app() -> None:
+def run_app(*, smoke_test: bool = False) -> None:
     app = MainWindow()
+    if smoke_test:
+        app.after(800, app.destroy)
     app.mainloop()

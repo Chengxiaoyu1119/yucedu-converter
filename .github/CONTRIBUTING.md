@@ -6,10 +6,20 @@
 
 要求 Python 3.11 或更高版本。虚拟环境是项目专用的 Python 运行空间，可避免依赖影响系统中的其他程序。
 
+Windows：
+
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -e ".[build]"
+```
+
+macOS：
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e ".[macos]"
 ```
 
 ## 目录职责
@@ -18,6 +28,7 @@ python -m pip install -e ".[build]"
 - `tests/`：自动测试和公开的合成测试说明。
 - `docs/`：用户说明、开发说明、研究记录和界面图片。
 - `packaging/windows/`：PyInstaller 的 Windows 打包配置。
+- `packaging/macos/`：PyInstaller 的 macOS App 打包配置。
 - `scripts/`：构建、发布和项目检查脚本。
 - `.github/`：Issue、Pull Request、持续集成和社区规范。
 - `local/`：本机样本与参考播放器；整个目录不提交 Git。
@@ -46,7 +57,8 @@ python -m pip install -e ".[build]"
 - 一个修改只解决一个清晰问题，避免顺手改动无关功能。
 - 保持现有 `src` 布局；导入统一从 `yucedu_converter` 包开始。
 - 转换逻辑放在 `converter.py`，界面逻辑放在 `gui.py`，播放器调用放在 `player.py`，设置持久化放在 `settings.py`，样式放在 `theme.py`。
-- 运行时资源统一放在 `src/yucedu_converter/resources/`，并同步检查 `pyproject.toml` 与 PyInstaller 配置。
+- 运行时资源统一放在 `src/yucedu_converter/resources/`，并同步检查 `pyproject.toml` 与两个平台的 PyInstaller 配置。
+- 程序版本只修改 `src/yucedu_converter/__init__.py` 中的 `APP_VERSION`，其余构建元数据由脚本生成。
 - 新增或升级第三方依赖时，更新 `pyproject.toml` 和 `docs/第三方组件.md`，并说明版本选择原因。
 - 用户可见行为发生变化时，同步更新 README、对应使用文档和 `docs/更新日志.md`。
 
